@@ -1,10 +1,13 @@
 import './App.css';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import topics from './topics';
+import languages from '../languages';
 
 function App() {
     const [joke, setJoke] = useState<string>('');
     const [amountOfJokes, setAmountOfJokes] = useState<number>(1);
+
+    const [currentLanguage, setCurrentLanguage] = useState<string>('Eng - en');
 
     const [blockedTopics, setBlockedTopics] = useState<{
         [key: string]: boolean;
@@ -78,15 +81,37 @@ function App() {
             setAmountOfJokes(amountOfJokes - 1);
         }
     }
+    function changeCurrentLanguage(
+        event: ChangeEvent<HTMLSelectElement>
+    ): void {
+        setCurrentLanguage(event.target.value);
+    }
 
     return (
         <div className="flex flex-col items-center p-4 md:p-8 lg:p-12 w-full max-w-2xl mx-auto text-center">
             <h1 className="text-2xl md:text-3xl font-bold">Joke Generator</h1>
             <p className="mt-2">Just click the "Get a Joke" button</p>
 
+            <select name="lang" id="lang"></select>
             <pre className="mt-5 mb-10 p-4 rounded-md w-full overflow-auto break-words whitespace-pre-wrap">
                 {joke}
             </pre>
+            <p className="text-lg">Choose the language</p>
+            <select
+                className="px-5 py-2 my-2"
+                onChange={changeCurrentLanguage}
+                name="languageSelect"
+                id="languageSelect"
+                value={currentLanguage}
+            >
+                {languages.map((language) => (
+                    <option
+                        value={`${language.name} - ${language.languageCode}`}
+                    >
+                        {`${language.name} - ${language.languageCode}`}
+                    </option>
+                ))}
+            </select>
 
             <p className="text-lg">How many jokes would you generate?</p>
             <div className="flex flex-row gap-2.5 items-center justify-center mt-2 mb-10">
