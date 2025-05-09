@@ -7,7 +7,8 @@ function App() {
     const [joke, setJoke] = useState<string>('');
     const [amountOfJokes, setAmountOfJokes] = useState<number>(1);
 
-    const [currentLanguage, setCurrentLanguage] = useState<string>('Eng - en');
+    const [currentLanguage, setCurrentLanguage] =
+        useState<string>('Englisch - en');
 
     const [blockedTopics, setBlockedTopics] = useState<{
         [key: string]: boolean;
@@ -38,11 +39,16 @@ function App() {
             let url = `https://v2.jokeapi.dev/joke/Any?amount=${jokesAmount}`;
 
             if (Object.keys(blockedTopics).length !== 0) {
-                url += '?blacklistFlags=';
+                url += '&blacklistFlags=';
 
                 Object.keys(blockedTopics).forEach((topic: string) => {
                     url += topic;
                 });
+            }
+
+            const languageCode = currentLanguage.split(' - ')[1];
+            if (languageCode !== 'en') {
+                url += `&lang=${languageCode}`;
             }
 
             const response = await fetch(url);
@@ -92,13 +98,12 @@ function App() {
             <h1 className="text-2xl md:text-3xl font-bold">Joke Generator</h1>
             <p className="mt-2">Just click the "Get a Joke" button</p>
 
-            <select name="lang" id="lang"></select>
             <pre className="mt-5 mb-10 p-4 rounded-md w-full overflow-auto break-words whitespace-pre-wrap">
                 {joke}
             </pre>
-            <p className="text-lg">Choose the language</p>
+            <p className="text-lg">Choose the language:</p>
             <select
-                className="px-5 py-2 my-2"
+                className="px-5 py-2 my-2 border-gray-300 border-1 rounded-2xl"
                 onChange={changeCurrentLanguage}
                 name="languageSelect"
                 id="languageSelect"
@@ -106,6 +111,7 @@ function App() {
             >
                 {languages.map((language) => (
                     <option
+                        key={language.languageCode}
                         value={`${language.name} - ${language.languageCode}`}
                     >
                         {`${language.name} - ${language.languageCode}`}
