@@ -1,10 +1,14 @@
 import './App.css';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import topics from './topics';
+import languages from '../languages';
 
 function App() {
     const [joke, setJoke] = useState<string>('');
     const [amountOfJokes, setAmountOfJokes] = useState<number>(1);
+
+    const [currentLanguage, setCurrentLanguage] =
+        useState<string>('Englisch - en');
 
     const [blockedTopics, setBlockedTopics] = useState<{
         [key: string]: boolean;
@@ -35,11 +39,16 @@ function App() {
             let url = `https://v2.jokeapi.dev/joke/Any?amount=${jokesAmount}`;
 
             if (Object.keys(blockedTopics).length !== 0) {
-                url += '?blacklistFlags=';
+                url += '&blacklistFlags=';
 
                 Object.keys(blockedTopics).forEach((topic: string) => {
                     url += topic;
                 });
+            }
+
+            const languageCode = currentLanguage.split(' - ')[1];
+            if (languageCode !== 'en') {
+                url += `&lang=${languageCode}`;
             }
 
             const response = await fetch(url);
@@ -78,6 +87,11 @@ function App() {
             setAmountOfJokes(amountOfJokes - 1);
         }
     }
+    function changeCurrentLanguage(
+        event: ChangeEvent<HTMLSelectElement>
+    ): void {
+        setCurrentLanguage(event.target.value);
+    }
 
     return (
         <div className="flex flex-col items-center p-4 md:p-8 lg:p-12 w-full max-w-2xl mx-auto text-center">
@@ -87,6 +101,23 @@ function App() {
             <pre className="mt-5 mb-10 p-4 rounded-md w-full overflow-auto break-words whitespace-pre-wrap">
                 {joke}
             </pre>
+            <p className="text-lg">Choose the language:</p>
+            <select
+                className="px-5 py-2 my-2 border-gray-300 border-1 rounded-2xl"
+                onChange={changeCurrentLanguage}
+                name="languageSelect"
+                id="languageSelect"
+                value={currentLanguage}
+            >
+                {languages.map((language) => (
+                    <option
+                        key={language.languageCode}
+                        value={`${language.name} - ${language.languageCode}`}
+                    >
+                        {`${language.name} - ${language.languageCode}`}
+                    </option>
+                ))}
+            </select>
 
             <p className="text-lg">How many jokes would you generate?</p>
             <div className="flex flex-row gap-2.5 items-center justify-center mt-2 mb-10">
@@ -105,7 +136,7 @@ function App() {
                 </button>
             </div>
             <h4 className="text-xl">Blacklist</h4>
-            <div className="flex flex-row gap-5 mb-2 mb-9">
+            <div className="flex flex-wrap flex-row gap-1 text-sm md:text-lg md:gap-5 mt-1 mb-9">
                 {topics.map((topic: string) => (
                     <label className="flex items-center gap-2" key={topic}>
                         <input
